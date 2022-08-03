@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { v4 as uuidv4 } from "uuid";
+import { useDispatch } from "react-redux";
+import { addTopic } from "../features/topics/topicsSlice";
 import ROUTES from "../app/routes";
 import { ALL_ICONS } from "../data/icons";
 
@@ -8,6 +9,7 @@ export default function NewTopicForm() {
   const [name, setName] = useState("");
   const [icon, setIcon] = useState("");
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleSubmit = (e: React.SyntheticEvent) => {
     e.preventDefault();
@@ -15,7 +17,14 @@ export default function NewTopicForm() {
       return;
     }
 
-    // dispatch your add topic action here
+    dispatch(
+      addTopic({
+        id: name.toLowerCase().replaceAll(" ", "-"),
+        name: name,
+        icon: icon,
+        quizIds: []
+      })
+    );
     navigate(ROUTES.topicsRoute());
   };
 
@@ -25,7 +34,7 @@ export default function NewTopicForm() {
         <h1 className="center">Create a new topic</h1>
         <div className="form-section">
           <input
-            id="topic-name"
+            id={name.toLowerCase().replaceAll(" ", "-")}
             type="text"
             value={name}
             onChange={(e) => setName(e.currentTarget.value)}
