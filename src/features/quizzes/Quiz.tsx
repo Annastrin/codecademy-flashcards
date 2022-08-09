@@ -1,9 +1,11 @@
 import { Link, useParams } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { selectQuizzes } from "./quizzesSlice";
 import Card from "../cards/Card";
 import ROUTES from "../../app/routes";
 
 export default function Quiz() {
-  const quizzes: Quizzes = {}; // replace this with a call to your selector to get all the quizzes in state
+  const quizzes = useSelector(selectQuizzes);
   let { quizId } = useParams();
 
   if (quizId === undefined) {
