@@ -1,37 +1,69 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { useNavigate, useParams } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
+import produce from "immer";
+import { selectTopics } from "../features/topics/topicsSlice";
 import ROUTES from "../app/routes";
+import { addQuiz } from "../features/quizzes/quizzesSlice";
+import { addQuizId } from "../features/topics/topicsSlice";
+import { addCards } from "../features/cards/cardsSlice";
 
-export default function NewQuizForm() {
+interface NewQuizFormProps {
+  topicFromLink?: string | undefined;
+}
+
+export default function NewQuizForm({ topicFromLink }: NewQuizFormProps) {
   const [name, setName] = useState("");
   const [cards, setCards] = useState<Cards>({});
   const [topicId, setTopicId] = useState("");
+  const topics = useSelector(selectTopics);
   const navigate = useNavigate();
-  const topics: Topics = {};
+  const dispatch = useDispatch();
 
   const handleSubmit = (e: React.SyntheticEvent) => {
     e.preventDefault();
-    if (name.length === 0) {
+    if (name.length === 0 || topicId.length === 0) {
       return;
     }
 
-    const cardIds = [];
+    const quizId = uuidv4();
 
-    // create the new cards here and add each card's id to cardIds
-    // create the new quiz here
+    const newQuiz = {
+      id: quizId,
+      topicId: topicId,
+      name: name,
+      cardIds: [...Object.keys(cards)]
+    };
+
+    dispatch(addQuiz(newQuiz));
+    dispatch(addQuizId({ topicId: topicId, quizId: quizId }));
+    dispatch(addCards(cards));
 
     navigate(ROUTES.quizzesRoute());
   };
 
   const addCardInputs = (e: React.SyntheticEvent) => {
     e.preventDefault();
-    //setCards(cards.concat({ front: "", back: "" }));
+    const newCardId = uuidv4();
+    setCards(
+      produce((draft) => {
+        draft[newCardId] = {
+          id: newCardId,
+          front: "",
+          back: ""
+        };
+      })
+    );
   };
 
   const removeCard = (e: React.SyntheticEvent, index: string) => {
     e.preventDefault();
-    //setCards(cards.filter((_, i) => index !== i));
+    setCards(
+      produce((draft) => {
+        delete draft[index];
+      })
+    );
   };
 
   const updateCardState = (
@@ -39,11 +71,11 @@ export default function NewQuizForm() {
     side: "front" | "back",
     value: string
   ) => {
-    /*
-    const newCards = cards.slice();
-    newCards[index][side] = value;
-    setCards(newCards);
-    */
+    setCards(
+      produce((draft) => {
+        draft[index][side] = value;
+      })
+    );
   };
 
   return (
@@ -59,14 +91,19 @@ export default function NewQuizForm() {
         <select
           id="quiz-topic"
           onChange={(e) => setTopicId(e.currentTarget.value)}
-          placeholder="Topic"
+          defaultValue={topicFromLink || "default"}
+          required
         >
-          <option value="">Topic</option>
+          <optgroup label="Topic">
+            <option value="default" disabled hidden>
+              Topic
+            </option>
           {Object.values(topics).map((topic) => (
             <option key={topic.id} value={topic.id}>
               {topic.name}
             </option>
           ))}
+          </optgroup>
         </select>
         {Object.keys(cards).map((index) => (
           <div key={index} className="card-front-back">
