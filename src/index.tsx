@@ -25,6 +25,15 @@ root.render(
             <Route path="quizzes" element={<Quizzes />} />
             <Route path="quizzes/new" element={<NewQuizForm />} />
             <Route path="quizzes/:quizId" element={<Quiz />} />
+            <Route
+              path="*"
+              element={
+                <main style={{ padding: "1rem", textAlign: "center" }}>
+                  <h1>404</h1>
+                  <p>Page not found!</p>
+                </main>
+              }
+            />
           </Route>
         </Routes>
       </BrowserRouter>
