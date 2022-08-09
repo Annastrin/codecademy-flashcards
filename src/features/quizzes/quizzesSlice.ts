@@ -5,14 +5,7 @@ import { RootState } from '../../app/store';
 
 export const quizzesSlice = createSlice({
   name: 'quizzes',
-  initialState: {
-    'test-quiz-0': {
-      id: 'test-quiz-0',
-      topicId: 'test-topic-0',
-      name: 'Harry Potter',
-      cardIds: ['test-card-0', 'test-card-1']
-    }
-  } as Quizzes,
+  initialState: {} as Quizzes,
   reducers: {
     addQuiz(state, action: PayloadAction<Quiz>) {
       state[action.payload.id] = action.payload;
