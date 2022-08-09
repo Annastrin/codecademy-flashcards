@@ -23,7 +23,11 @@ export default function NewQuizForm({ topicFromLink }: NewQuizFormProps) {
 
   const handleSubmit = (e: React.SyntheticEvent) => {
     e.preventDefault();
-    if (name.length === 0 || topicId.length === 0) {
+    if (
+      name.length === 0 ||
+      topicId.length === 0 ||
+      Object.keys(cards).length === 0
+    ) {
       return;
     }
 
