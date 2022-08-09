@@ -16,7 +16,7 @@ interface NewQuizFormProps {
 export default function NewQuizForm({ topicFromLink }: NewQuizFormProps) {
   const [name, setName] = useState("");
   const [cards, setCards] = useState<Cards>({});
-  const [topicId, setTopicId] = useState("");
+  const [topicId, setTopicId] = useState(topicFromLink || "");
   const topics = useSelector(selectTopics);
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -98,11 +98,11 @@ export default function NewQuizForm({ topicFromLink }: NewQuizFormProps) {
             <option value="default" disabled hidden>
               Topic
             </option>
-          {Object.values(topics).map((topic) => (
-            <option key={topic.id} value={topic.id}>
-              {topic.name}
-            </option>
-          ))}
+            {Object.values(topics).map((topic) => (
+              <option key={topic.id} value={topic.id}>
+                {topic.name}
+              </option>
+            ))}
           </optgroup>
         </select>
         {Object.keys(cards).map((index) => (
@@ -140,4 +140,9 @@ export default function NewQuizForm({ topicFromLink }: NewQuizFormProps) {
       </form>
     </section>
   );
+}
+
+export function NewQuizFormWithTopic() {
+  const { topicIdFromLink } = useParams();
+  return <NewQuizForm topicFromLink={topicIdFromLink} />;
 }

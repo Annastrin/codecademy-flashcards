@@ -8,6 +8,7 @@ import NewTopicForm from "./components/NewTopicForm";
 import Topic from "./features/topics/Topic";
 import Quizzes from "./features/quizzes/Quizzes";
 import NewQuizForm from "./components/NewQuizForm";
+import { NewQuizFormWithTopic } from "./components/NewQuizForm";
 import Quiz from "./features/quizzes/Quiz";
 import store from "./app/store";
 
@@ -24,6 +25,10 @@ root.render(
             <Route path="topics/:topicId" element={<Topic />} />
             <Route path="quizzes" element={<Quizzes />} />
             <Route path="quizzes/new" element={<NewQuizForm />} />
+            <Route
+              path="quizzes/new/:topicIdFromLink"
+              element={<NewQuizFormWithTopic />}
+            />
             <Route path="quizzes/:quizId" element={<Quiz />} />
             <Route
               path="*"
