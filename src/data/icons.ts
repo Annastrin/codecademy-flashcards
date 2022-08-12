@@ -41,89 +41,91 @@ export const SUN_ICON =
 export const TREE_ICON =
   "https://static-assets.codecademy.com/skillpaths/react-redux/redux-quiz-app/tree.svg";
 
-export const ALL_ICONS = [
-  {
+export const ALL_ICONS = {
+  "book": {
     url: BOOK_ICON,
     name: "Book",
   },
-  {
+  "balloon": {
     url: BALLOON_ICON,
     name: "Balloon",
   },
-  {
+  "bird": {
     url: BIRD_ICON,
     name: "Bird",
   },
-  {
+  "calendar": {
     url: CALENDAR_ICON,
     name: "Calendar",
   },
-  {
+  "clover": {
     url: CLOVER_ICON,
     name: "Clover",
   },
-  {
+  "crayons": {
     url: CRAYONS_ICON,
     name: "Crayons",
   },
-  {
+  "data": {
     url: DATA_FLOW_ICON,
     name: "Data",
   },
-  {
+  "fence": {
     url: FENCE_ICON,
     name: "Fence",
   },
-  {
+  "grill": {
     url: GRILL_ICON,
     name: "Grill",
   },
-  {
+  "hand": {
     url: HAND_DRILL_ICON,
     name: "Hand",
   },
-  {
+  "hat": {
     url: HAT_ICON,
     name: "Hat",
   },
-  {
+  "internet": {
     url: INTERNET_ICON,
     name: "Internet",
   },
-  {
+  "ladybug": {
     url: LADYBUG_ICON,
     name: "Ladybug",
   },
-  {
+  "leaves": {
     url: LEAVES_ICON,
     name: "Leaves",
   },
-  {
+  "medicine": {
     url: MEDICINE_ICON,
     name: "Medicine",
   },
-  {
+  "nest": {
     url: NEST_ICON,
     name: "Nest",
   },
-  {
+  "shuttlecock": {
     url: SHUTTLECOCK_ICON,
     name: "Shuttlecock",
   },
-  {
+  "spade": {
     url: SPADE_ICON,
     name: "Spade",
   },
-  {
+  "statistics": {
     url: STATISTICS_ICON,
     name: "Statistics",
   },
-  {
+  "sun": {
     url: SUN_ICON,
     name: "Sun",
   },
-  {
+  "tree": {
     url: TREE_ICON,
     name: "Tree",
   },
-];
+};
+
+export type IconsKeyType = keyof typeof ALL_ICONS;
