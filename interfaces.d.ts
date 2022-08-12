@@ -29,3 +29,10 @@ interface Quiz {
 interface Quizzes {
   [key: string]: Quiz;
 }
+
+interface AllIcons {
+  [key: string]: {
+    url: string,
+    name: string
+  }
+}
