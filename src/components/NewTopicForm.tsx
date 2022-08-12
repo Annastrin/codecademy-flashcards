@@ -1,30 +1,35 @@
-import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { v4 as uuidv4 } from "uuid";
+import { useForm, SubmitHandler } from "react-hook-form";
 import { addTopic } from "../features/topics/topicsSlice";
 import ROUTES from "../app/routes";
-import { ALL_ICONS } from "../data/icons";
+import * as icons from "../data/icons";
 
 export default function NewTopicForm() {
-  const [name, setName] = useState("");
-  const [icon, setIcon] = useState("");
+  const allIcons = icons.ALL_ICONS as AllIcons;
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
-  const handleSubmit = (e: React.SyntheticEvent) => {
-    e.preventDefault();
-    if (name.length === 0 || icon.length === 0) {
-      return;
+  const {
+    register,
+    handleSubmit,
+    formState: { errors }
+  } = useForm<FormValues>({
+    defaultValues: {
+      topicName: "",
+      topicIcon: "default"
     }
+  });
 
+  const onSubmit: SubmitHandler<FormValues> = (data, e) => {
+    e?.preventDefault();
     const topicId = uuidv4();
 
     dispatch(
       addTopic({
         id: topicId,
-        name: name,
-        icon: icon,
+        name: data.topicName,
+        icon: allIcons[data.topicIcon].url,
         quizIds: []
       })
     );
@@ -33,33 +38,53 @@ export default function NewTopicForm() {
 
   return (
     <section>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <h1 className="center">Create a new topic</h1>
         <div className="form-section">
-          <input
-            id={name.toLowerCase().replaceAll(" ", "-")}
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.currentTarget.value)}
-            placeholder="Topic Name"
-          />
-          <select
-            onChange={(e) => setIcon(e.currentTarget.value)}
-            required
-            defaultValue="default"
-          >
-            <option value="default" disabled hidden>
-              Choose an icon
-            </option>
-            {ALL_ICONS.map(({ name, url }) => (
-              <option key={url} value={url}>
-                {name}
+          <div className="form-field">
+            <input
+              {...register("topicName", {
+                required: true,
+                minLength: 1
+              })}
+              type="text"
+              placeholder="Topic Name"
+              className={errors.topicName?.type === "required" ? "invalid" : ""}
+            />
+            {errors.topicName?.type === "required" && (
+              <p className="error-message">Topic Name is required</p>
+            )}
+          </div>
+          <div className="form-field">
+            <select
+              {...register("topicIcon", {
+                required: true,
+                validate: (value) =>
+                  Object.keys(allIcons).includes(value) || "Icon is required"
+              })}
+              className={errors.topicIcon?.type === "validate" ? "invalid" : ""}
+            >
+              <option value="default" disabled hidden>
+                Choose an icon
               </option>
-            ))}
-          </select>
+              {Object.entries(allIcons).map(([key, value]) => (
+                <option key={key} value={key}>
+                  {value.name}
+                </option>
+              ))}
+            </select>
+            {errors.topicIcon?.type === "validate" && (
+              <p className="error-message">{errors.topicIcon.message}</p>
+            )}
+          </div>
         </div>
         <button className="center">Add Topic</button>
       </form>
     </section>
   );
+}
+
+interface FormValues {
+  topicName: string;
+  topicIcon: icons.IconsKeyType | "default";
 }
