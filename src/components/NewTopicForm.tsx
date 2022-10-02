@@ -6,6 +6,11 @@ import { addTopic } from "../features/topics/topicsSlice";
 import ROUTES from "../app/routes";
 import * as icons from "../data/icons";
 
+interface FormValues {
+  topicName: string;
+  topicIcon: icons.IconsKeyType | "default";
+}
+
 export default function NewTopicForm() {
   const allIcons = icons.ALL_ICONS as AllIcons;
   const navigate = useNavigate();
@@ -44,8 +49,7 @@ export default function NewTopicForm() {
           <div className="form-field">
             <input
               {...register("topicName", {
-                required: true,
-                minLength: 1
+                required: true
               })}
               type="text"
               placeholder="Topic Name"
@@ -82,9 +86,4 @@ export default function NewTopicForm() {
       </form>
     </section>
   );
-}
-
-interface FormValues {
-  topicName: string;
-  topicIcon: icons.IconsKeyType | "default";
 }
