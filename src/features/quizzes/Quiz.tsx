@@ -9,7 +9,7 @@ export default function Quiz() {
   let { quizId } = useParams();
 
   if (quizId === undefined) {
-    throw new Error("Impossible situation."); // TODO check it
+    throw new Error("quizId is undefined");
   }
 
   const quiz = quizzes[quizId];
