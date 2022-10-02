@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React from "react";
+import { useForm, useFieldArray, SubmitHandler } from "react-hook-form";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
@@ -13,90 +14,96 @@ interface NewQuizFormProps {
   topicFromLink?: string | undefined;
 }
 
+interface FormValues {
+  quizName: string;
+  topicId: string;
+  cards: Card[];
+}
+
 export default function NewQuizForm({ topicFromLink }: NewQuizFormProps) {
-  const [name, setName] = useState("");
-  const [cards, setCards] = useState<Cards>({});
-  const [topicId, setTopicId] = useState(topicFromLink || "");
   const topics = useSelector(selectTopics);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const handleSubmit = (e: React.SyntheticEvent) => {
-    e.preventDefault();
-    if (
-      name.length === 0 ||
-      topicId.length === 0 ||
-      Object.keys(cards).length === 0
-    ) {
-      return;
+  const {
+    control,
+    register,
+    handleSubmit,
+    formState: { errors }
+  } = useForm<FormValues>({
+    defaultValues: {
+      quizName: "",
+      topicId: topicFromLink || "default",
+      cards: []
     }
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    name: "cards",
+    rules: {
+      required: "Add at least one card",
+      minLength: { value: 1, message: "Add at least one card" }
+    },
+    control
+  });
+
+  const onSubmit: SubmitHandler<FormValues> = (data, e) => {
+    e?.preventDefault();
+    console.log(data);
 
     const quizId = uuidv4();
 
     const newQuiz = {
       id: quizId,
-      topicId: topicId,
-      name: name,
-      cardIds: [...Object.keys(cards)]
+      topicId: data.topicId,
+      name: data.quizName,
+      cardIds: [...Object.keys(data.cards)]
     };
 
-    dispatch(addQuiz(newQuiz));
-    dispatch(addQuizId({ topicId: topicId, quizId: quizId }));
-    dispatch(addCards(cards));
+    //dispatch(addQuiz(newQuiz));
+    //dispatch(addQuizId({ topicId: data.topicId, quizId: quizId }));
+    //dispatch(addCards(data.cards));
 
-    navigate(ROUTES.quizzesRoute());
+    //navigate(ROUTES.quizzesRoute());
   };
+
+  console.log(errors);
 
   const addCardInputs = (e: React.SyntheticEvent) => {
     e.preventDefault();
     const newCardId = uuidv4();
-    setCards(
-      produce((draft) => {
-        draft[newCardId] = {
-          id: newCardId,
-          front: "",
-          back: ""
-        };
-      })
-    );
+    append({
+      id: newCardId,
+      front: "",
+      back: ""
+    });
   };
 
-  const removeCard = (e: React.SyntheticEvent, index: string) => {
+  const removeCard = (e: React.SyntheticEvent, index: number) => {
     e.preventDefault();
-    setCards(
-      produce((draft) => {
-        delete draft[index];
-      })
-    );
-  };
-
-  const updateCardState = (
-    index: string,
-    side: "front" | "back",
-    value: string
-  ) => {
-    setCards(
-      produce((draft) => {
-        draft[index][side] = value;
-      })
-    );
+    remove(index);
   };
 
   return (
     <section>
       <h1>Create a new quiz</h1>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <input
-          id="quiz-name"
-          value={name}
-          onChange={(e) => setName(e.currentTarget.value)}
+          {...register("quizName", {
+            required: true
+          })}
           placeholder="Quiz Title"
+          className={errors.quizName?.type === "required" ? "invalid" : ""}
         />
+        {errors.quizName?.type === "required" && (
+          <p className="error-message">Quiz Name is required</p>
+        )}
         <select
-          id="quiz-topic"
-          onChange={(e) => setTopicId(e.currentTarget.value)}
-          defaultValue={topicFromLink || "default"}
-          required
+          {...register("topicId", {
+            required: true,
+            validate: (value) => value !== "default" || "Topic is required"
+          })}
+          className={errors.topicId?.type === "validate" ? "invalid" : ""}
         >
           <optgroup label="Topic">
             <option value="default" disabled hidden>
@@ -109,26 +116,10 @@ export default function NewQuizForm({ topicFromLink }: NewQuizFormProps) {
             ))}
           </optgroup>
         </select>
-        {Object.keys(cards).map((index) => (
-          <div key={index} className="card-front-back">
-            <input
-              id={`card-front-${index}`}
-              value={cards[index].front}
-              onChange={(e) =>
-                updateCardState(index, "front", e.currentTarget.value)
-              }
-              placeholder="Front"
-            />
-
-            <input
-              id={`card-back-${index}`}
-              value={cards[index].back}
-              onChange={(e) =>
-                updateCardState(index, "back", e.currentTarget.value)
-              }
-              placeholder="Back"
-            />
-
+        {fields.map((item, index) => (
+          <div className="card-front-back" key={item.id}>
+            <input {...register(`cards.${index}.front`)} placeholder="Front" />
+            <input {...register(`cards.${index}.back`)} placeholder="Back" />
             <button
               onClick={(e) => removeCard(e, index)}
               className="remove-card-button"
@@ -137,6 +128,9 @@ export default function NewQuizForm({ topicFromLink }: NewQuizFormProps) {
             </button>
           </div>
         ))}
+        {errors.cards?.root && (
+          <p className="error-message">{errors.cards?.root.message}</p>
+        )}
         <div className="actions-container">
           <button onClick={addCardInputs}>Add a Card</button>
           <button>Create Quiz</button>
