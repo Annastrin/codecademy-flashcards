@@ -3,7 +3,6 @@ import { useForm, useFieldArray, SubmitHandler } from "react-hook-form";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
-import produce from "immer";
 import { selectTopics } from "../features/topics/topicsSlice";
 import ROUTES from "../app/routes";
 import { addQuiz } from "../features/quizzes/quizzesSlice";
@@ -34,7 +33,13 @@ export default function NewQuizForm({ topicFromLink }: NewQuizFormProps) {
     defaultValues: {
       quizName: "",
       topicId: topicFromLink || "default",
-      cards: []
+      cards: [
+        {
+          id: uuidv4(),
+          front: "",
+          back: ""
+        }
+      ]
     }
   });
 
@@ -49,31 +54,29 @@ export default function NewQuizForm({ topicFromLink }: NewQuizFormProps) {
 
   const onSubmit: SubmitHandler<FormValues> = (data, e) => {
     e?.preventDefault();
-    console.log(data);
 
     const quizId = uuidv4();
+
+    const quizCards = cardsArrayToObject(data.cards);
 
     const newQuiz = {
       id: quizId,
       topicId: data.topicId,
       name: data.quizName,
-      cardIds: [...Object.keys(data.cards)]
+      cardIds: data.cards.map((card) => card.id)
     };
 
-    //dispatch(addQuiz(newQuiz));
-    //dispatch(addQuizId({ topicId: data.topicId, quizId: quizId }));
-    //dispatch(addCards(data.cards));
+    dispatch(addQuiz(newQuiz));
+    dispatch(addQuizId({ topicId: data.topicId, quizId: quizId }));
+    dispatch(addCards(quizCards));
 
-    //navigate(ROUTES.quizzesRoute());
+    navigate(ROUTES.quizzesRoute());
   };
-
-  console.log(errors);
 
   const addCardInputs = (e: React.SyntheticEvent) => {
     e.preventDefault();
-    const newCardId = uuidv4();
     append({
-      id: newCardId,
+      id: uuidv4(),
       front: "",
       back: ""
     });
@@ -143,4 +146,13 @@ export default function NewQuizForm({ topicFromLink }: NewQuizFormProps) {
 export function NewQuizFormWithTopic() {
   const { topicIdFromLink } = useParams();
   return <NewQuizForm topicFromLink={topicIdFromLink} />;
+}
+
+function cardsArrayToObject(cardsArr: Card[]): Cards {
+  const cardsObj = {} as Cards;
+  cardsArr.forEach((card) => {
+    let id = card.id;
+    cardsObj[id] = card;
+  });
+  return cardsObj;
 }
