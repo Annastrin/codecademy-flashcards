@@ -23,5 +23,5 @@
   "include": [
     "src",
     "interfaces.d.ts"
-  ]
+, "tests/App.test.tsx"  ]
 }
