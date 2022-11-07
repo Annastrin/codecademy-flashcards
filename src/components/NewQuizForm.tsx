@@ -33,13 +33,7 @@ export default function NewQuizForm({ topicFromLink }: NewQuizFormProps) {
     defaultValues: {
       quizName: "",
       topicId: topicFromLink || "default",
-      cards: [
-        {
-          id: uuidv4(),
-          front: "",
-          back: ""
-        }
-      ]
+      cards: [{ id: uuidv4(), front: "", back: "" }]
     }
   });
 
@@ -75,11 +69,7 @@ export default function NewQuizForm({ topicFromLink }: NewQuizFormProps) {
 
   const addCardInputs = (e: React.SyntheticEvent) => {
     e.preventDefault();
-    append({
-      id: uuidv4(),
-      front: "",
-      back: ""
-    });
+    append({ id: uuidv4(), front: "", back: "" });
   };
 
   const removeCard = (e: React.SyntheticEvent, index: number) => {
@@ -91,38 +81,79 @@ export default function NewQuizForm({ topicFromLink }: NewQuizFormProps) {
     <section>
       <h1>Create a new quiz</h1>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <input
-          {...register("quizName", {
-            required: true
-          })}
-          placeholder="Quiz Title"
-          className={errors.quizName?.type === "required" ? "invalid" : ""}
-        />
-        {errors.quizName?.type === "required" && (
-          <p className="error-message">Quiz Name is required</p>
-        )}
-        <select
-          {...register("topicId", {
-            required: true,
-            validate: (value) => value !== "default" || "Topic is required"
-          })}
-          className={errors.topicId?.type === "validate" ? "invalid" : ""}
-        >
-          <optgroup label="Topic">
-            <option value="default" disabled hidden>
-              Topic
-            </option>
-            {Object.values(topics).map((topic) => (
-              <option key={topic.id} value={topic.id}>
-                {topic.name}
+        <div className="form-field">
+          <input
+            {...register("quizName", {
+              required: true
+            })}
+            placeholder="Quiz Title"
+            className={errors.quizName?.type === "required" ? "invalid" : ""}
+          />
+          {errors.quizName?.type === "required" && (
+            <p className="error-message">Quiz Name is required</p>
+          )}
+        </div>
+        <div className="form-field">
+          <select
+            {...register("topicId", {
+              required: true,
+              validate: (value) => value !== "default" || "Topic is required"
+            })}
+            className={errors.topicId?.type === "validate" ? "invalid" : ""}
+          >
+            <optgroup label="Topic">
+              <option value="default" disabled hidden>
+                Topic
               </option>
-            ))}
-          </optgroup>
-        </select>
+              {Object.values(topics).map((topic) => (
+                <option key={topic.id} value={topic.id}>
+                  {topic.name}
+                </option>
+              ))}
+            </optgroup>
+          </select>
+          {errors.topicId?.type === "validate" && (
+            <p className="error-message">{errors.topicId.message}</p>
+          )}
+        </div>
         {fields.map((item, index) => (
           <div className="card-front-back" key={item.id}>
-            <input {...register(`cards.${index}.front`)} placeholder="Front" />
-            <input {...register(`cards.${index}.back`)} placeholder="Back" />
+            <div className="form-field">
+              <input
+                {...register(`cards.${index}.front`, {
+                  validate: (val) => val.length > 0 || "Fill Front"
+                })}
+                placeholder="Front"
+                className={
+                  errors.cards?.[index]?.front?.type === "validate"
+                    ? "invalid"
+                    : ""
+                }
+              />
+              {errors.cards?.[index]?.front?.type === "validate" && (
+                <p className="error-message">
+                  {errors.cards?.[index]?.front?.message}
+                </p>
+              )}
+            </div>
+            <div className="form-field">
+              <input
+                {...register(`cards.${index}.back`, {
+                  validate: (val) => val.length > 0 || "Fill Back"
+                })}
+                placeholder="Back"
+                className={
+                  errors.cards?.[index]?.back?.type === "validate"
+                    ? "invalid"
+                    : ""
+                }
+              />
+              {errors.cards?.[index]?.back?.type === "validate" && (
+                <p className="error-message">
+                  {errors.cards?.[index]?.back?.message}
+                </p>
+              )}
+            </div>
             <button
               onClick={(e) => removeCard(e, index)}
               className="remove-card-button"
@@ -150,9 +181,8 @@ export function NewQuizFormWithTopic() {
 
 function cardsArrayToObject(cardsArr: Card[]): Cards {
   const cardsObj = {} as Cards;
-  cardsArr.forEach((card) => {
-    let id = card.id;
-    cardsObj[id] = card;
-  });
+  for (const card of cardsArr) {
+    cardsObj[card.id] = card;
+  }
   return cardsObj;
 }
